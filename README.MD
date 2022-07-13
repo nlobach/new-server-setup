@@ -31,6 +31,8 @@ Wireguard is a fast and efficient VPN protocol. It is better to access the serve
     PrivateKey = <Key generated on step2>
     Address = 192.168.2.1/32
     ListenPort = 51820
+    PostUp = iptables -A FORWARD -i %i -o %i -j ACCEPT
+    PostDown = iptables -D FORWARD -i %i -o %i -j ACCEPT
     ```
 4. Run the server by issuing the following: `sudo wg-quick up wg0`
 5. Make sure the server is up: `sudo wg`
@@ -43,7 +45,7 @@ Wireguard is a fast and efficient VPN protocol. It is better to access the serve
 
     [Peer]
     PublicKey = <Server public key visible on step 5> 
-    AllowedIPs = 192.168.2.1/32
+    AllowedIPs = 192.168.2.1/24
     Endpoint = <your_server_ip>:51820
     PersistentKeepalive = 25
     ```
@@ -54,6 +56,12 @@ Wireguard is a fast and efficient VPN protocol. It is better to access the serve
     AllowedIPs = 192.168.2.2/32
     ```
 9. Connect the client to the server (client specific) and test the connection by sending pings from the client: `ping 192.168.2.1`
+10. Make clients see each other by adding the following to `/etc/sysctl.conf`:
+    ```
+    net.ipv4.ip_forward = 1
+    net.ipv4.conf.all.proxy_arp = 1
+    ```
+    And then do `sudo sysctl -p /etc/sysctl.conf`
 
 ### Set Up microk8s
 microk8s is a lightweight implementation of kubernetes. It will allow us to run containerized applications on our server.
@@ -108,7 +116,7 @@ If the port was found in the iptables-legacy you should block the ports there an
 The plan is to intercept the packets that are nor coming from our WireGuard VPN at the `nat` table level of the netfilter and RETURN them to prevent further address translation and then drop them at the filter level:
 
 ```
-sudo iptables-legacy -t nat -I PREROUTING 1 ! --source 192.168.2.0/24 -p tcp -m multiport --destination-port 32000 -j RETURN
+sudo iptables-legacy -t nat -I KUBE-NODEPORTS 1 ! --source 192.168.2.0/24 -p tcp -m multiport --destination-port 32000 -j RETURN
 sudo iptables-legacy -A INPUT -p tcp -m multiport --destination-port 32000 -j DROP
 
 ```
