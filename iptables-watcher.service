@@ -2,7 +2,7 @@
 Description=iptables watcher service
 
 [Service]
-ExecStart=/usr/bin/iptables-watcher.sh
+ExecStart=/usr/local/bin/iptables-watcher.sh
 
 [Install]
 WantedBy=multi-user.target
