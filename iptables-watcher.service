@@ -1,0 +1,8 @@
+[Unit]
+Description=iptables watcher service
+
+[Service]
+ExecStart=/usr/local/bin/iptables-watcher.sh
+
+[Install]
+WantedBy=multi-user.target

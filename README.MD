@@ -96,22 +96,17 @@ To be able to manage your kubernetes installation you need to install and config
 4. Test the connection by running `kubectl describe node`
 
 ### Protect Server with Firewall
-microk8s uses iptables to set up its network, This makes blocking some of the ports challenging as the packets are NAT'ed before they hit filtering. This means, for example, that the incoming packets to the registry that come to the port 32000 will get theit port changed before they reach any filtering rules.
+microk8s uses iptables to set up its network, This makes blocking some of the ports challenging as the packets are NAT'ed before they hit filtering. This means, for example, that the incoming packets to the registry that come to the port 32000 will get their port changed before they reach any filtering rules.
 
-The fact that on your specific server microk8s can use both nft and legacy tables further complicates the setup. You need first to find out where exectly microk8s put the rules for the ports. To do this run 
-```
-sudo iptables-legacy-save | grep 32000
-sudo iptables-save | grep 32000
-```
-If the port was found in the iptables-legacy you should block the ports there and use `iptables-legacy` instead of `iptables`.
+The fact that on your specific server microk8s can use both nft and legacy iptables further complicates the setup. 
+To solve this problem a special watcher service is used that corrects the iptables blocking access to the needed potrs after microk8s starts up.
 
-The plan is to intercept the packets that are nor coming from our WireGuard VPN at the `nat` table level of the netfilter and RETURN them to prevent further address translation and then drop them at the filter level:
+1. Copy `wait-for-it.sh` and `iptables-watcher.sh` to `/usr/local/bin/`
+2. Copy `iptables-watcher.service` to `/etc/systemd/system/`
+3. Start the service: `sudo systemctl start iptables-watcher`
+4. Enable the service on startup: `sudo systemctl enable iptables-watcher`
+5. Make sure the port 32000 is not reachable from the public IP.
 
-```
-sudo iptables-legacy -t nat -I KUBE-SERVICES 1 ! --source 192.168.2.0/24 -p tcp -m multiport --destination-port 32000 -j RETURN
-sudo iptables-legacy -A INPUT -p tcp -m multiport --destination-port 32000 -j DROP
-
-```
 The rest of the setup is easier done with the ufw tool that under the hoos also works with iptanles:
 1. Install the ufw firewall: `sudo apt install ufw`
 2. Enable ssh access to the server: `sudo ufw allow 22`
@@ -127,7 +122,7 @@ The set up shall be complete. You can try deploying to your kubernetes cluster f
 ## Configure SSL
 First you need to install cert-manager
 ```
-kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.yaml
 ```
 
 The next command should show 3 pods to confirm cert-manager is installed and running
