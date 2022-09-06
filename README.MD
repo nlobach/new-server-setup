@@ -125,4 +125,66 @@ The rest of the setup is easier done with the ufw tool that under the hoos also 
 The set up shall be complete. You can try deploying to your kubernetes cluster from your client kubectl utility.
 
 ## Configure SSL
-TBD
+First you need to install cert-manager
+```
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
+```
+
+The next command should show 3 pods to confirm cert-manager is installed and running
+```
+kubectl get pods --n=cert-manager
+```
+
+Apply both issuer configs
+```
+kubectl apply -f letsencrypt/letsencrypt-staging.yaml
+kubectl apply -f letsencrypt/letsencrypt-prod.yaml
+```
+
+Update ingress to use the staging certificate like so
+```
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-routes
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+spec:
+  tls:
+  - hosts:
+#change to your domain
+    - yourdomain.com
+    secretName: tls-secret
+  rules:
+#change to your domain
+  - host: yourdomain.com
+    http:
+      paths:
+        - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: webserver-svc
+            port:
+              number: 80
+```
+
+Run the next command to confirm Ready=True
+```
+kubectl get certificate
+```
+
+If it returned true, that means HTTP-01 challenge was successful. You can see more detail at the end of output running the next command
+```
+kubectl describe certificate tls-secret
+```
+
+Now to change the ingress to use the production certificate.
+```
+cert-manager.io/cluster-issuer: "letsencrypt-prod"
+```
+
+Run the next command to confirm a certificate was generated. Ready=True
+```
+kubectl get certificate
+```
