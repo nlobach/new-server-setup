@@ -15,6 +15,9 @@ It is assumed that:
 1. Run system update: `apt update && apt upgrade`
 2. Reboot the system: `reboot`
 
+### Install Needed Sortware
+1. Install the ufw firewall: `apt install ufw`
+
 ### Create Dedicated User
 In order not to abuse the root access a separate user has to be created. 
 
@@ -112,12 +115,11 @@ To solve this problem a special watcher service is used that corrects the iptabl
 5. Make sure the port 32000 is not reachable from the public IP.
 
 The rest of the setup is easier done with the ufw tool that under the hoos also works with iptanles:
-1. Install the ufw firewall: `sudo apt install ufw`
-2. Enable ssh access to the server: `sudo ufw allow 22`
-3. Enable access to Wireguard server: `sudo ufw allow 51820`
-4. Enable kubectl access to microk8s: `sudo ufw allow from 192.168.2.0/24 to 192.168.2.1 port 16443`
-5. Enable the firewall: `sudo ufw enable`
-6. Check that connections can be established.
+1. Enable ssh access to the server: `sudo ufw allow 22`
+2. Enable access to Wireguard server: `sudo ufw allow 51820`
+3. Enable kubectl access to microk8s: `sudo ufw allow from 192.168.2.0/24 to 192.168.2.1 port 16443`
+4. Enable the firewall: `sudo ufw enable`
+5. Check that connections can be established.
 
 ### Final Test of the Installation
 
