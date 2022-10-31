@@ -133,7 +133,7 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 
 The next command should show 3 pods to confirm cert-manager is installed and running
 ```
-kubectl get pods --n=cert-manager
+kubectl get pods -n=cert-manager
 ```
 
 Apply both issuer configs
