@@ -13,6 +13,7 @@ It is assumed that:
 
 ### Update the System
 1. Run system update: `apt update && apt upgrade`
+2. Reboot the system: `reboot`
 
 ### Create Dedicated User
 In order not to abuse the root access a separate user has to be created. 
