@@ -11,6 +11,9 @@ It is assumed that:
 
 ## Installation
 
+### Update the System
+1. RUn system updateL `apt update && apt upgrade`
+
 ### Create Dedicated User
 In order not to abuse the root access a separate user has to be created. 
 
