@@ -39,7 +39,7 @@ Wireguard is a fast and efficient VPN protocol. It is better to access the serve
     Address = 192.168.2.1/32
     ListenPort = 51820
     ```
-4. Run the server by issuing the following: `sudo wg-quick up wg0`
+4. Run the wireguard server as a service by issuing the following commands: `sudo systemctl enable wg-quick@wg0 && sudo systemctl start wg-quick@wg0`
 5. Make sure the server is up: `sudo wg`
 6. Install Wireguard on the client (client specific), obtain client public key.
 7. Configure the client:
