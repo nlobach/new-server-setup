@@ -61,6 +61,12 @@ Wireguard is a fast and efficient VPN protocol. It is better to access the serve
     AllowedIPs = 192.168.2.2/32
     ```
 9. Connect the client to the server (client specific) and test the connection by sending pings from the client: `ping 192.168.2.1`
+10. To allow clients see each other add the following 2 lines to /etc/sysctl.conf
+    ```
+    net.ipv4.ip_forward = 1
+    net.ipv4.conf.all.proxy_arp = 1
+    ```
+    and then run `sudo sysctl -p /etc/sysctl.conf`
 
 ### Set Up microk8s
 microk8s is a lightweight implementation of kubernetes. It will allow us to run containerized applications on our server.
