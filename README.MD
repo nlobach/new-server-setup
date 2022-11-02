@@ -15,6 +15,12 @@ It is assumed that:
 1. Run system update: `apt update && apt upgrade`
 2. Reboot the system: `reboot`
 
+### Fix DNS (for firstvds servers)
+Preconfigured servers come with a weird dns setup which utilized the DOMAINS domain for dns search. This destroys internet access from withing the microk8s cluster, so we need to fis it
+1. Run `resolvectl status` to see all dns settings and look for the link which has DOMAINS in its description
+2. Run `sudo resolvectl domain <link> ""`
+3. Run `resolvectl status` again to make sure DOMAINS are gone.
+
 ### Install Needed Sortware
 1. Install the ufw firewall: `apt install ufw`
 
